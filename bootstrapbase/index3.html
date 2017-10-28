@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="https://fezvrasta.github.io/bootstrap-material-design/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.css" />
+	<link rel='stylesheet' id='fontawesome-css'  href='https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css' type='text/css' media='all' />
+
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://fezvrasta.github.io/bootstrap-material-design/dist/css/bootstrap-material-design.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="https://fezvrasta.github.io/bootstrap-material-design/docs/4.0/examples/starter-template/starter-template.css" rel="stylesheet">
+	
+	<style type="text/css">
+    body {
+            padding: 0;
+            margin: 0;
+			padding-top: 0px;
+        }
+        html, body, #map {
+            height: 100%;
+            width: 100%;
+        }
+		
+	    .serie_bottoni1{
+			position:absolute;
+			top:30px;
+			left:10px;
+			z-index: 1000;
+			
+		}
+		.serie_bottoni{
+			position:absolute;
+			top:105px;
+			left:10px;
+			z-index: 1000;
+		
+		}
+		
+		.boxcomparsa{
+			position:absolute;
+			bottom:50px;
+			left:10px;
+			z-index: 1000;
+		
+		}
+		.btn-ale{
+		color: #000000!important;
+		background-color: #ffffff!important;
+		}
+    </style>
+	
+</head>
+
+<body>
+
+
+	<div class="serie_bottoni">
+		<button id="zoomin" type="button" class="btn btn-primary btn-md active btn-ale" role="button" aria-pressed="true"><i class="fa fa-home" aria-hidden="true"></i></button>
+	</div>
+	
+	<div class="serie_bottoni1">
+		<button id="zoomplus" type="button" class="btn btn-primary btn-md active btn-ale" role="button" aria-pressed="true"><i class="fa fa-plus-circle" aria-hidden="true"></i></button></br>
+		<button id="zoommin" type="button" class="btn btn-primary btn-md active btn-ale" role="button" aria-pressed="true"><i class="fa fa-minus-circle" aria-hidden="true"></i></button>
+	</div>
+
+	
+	
+    <div id="map"></div>
+	
+	 <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <!-- <script>window.jQuery || document.write('<script src="../../../../assets/js/vendor/jquery.min.js"><\/script>')</script> -->
+    <script src="https://fezvrasta.github.io/bootstrap-material-design/assets/js/vendor/popper.min.js"></script>
+    <script src="https://fezvrasta.github.io/bootstrap-material-design/dist/js/bootstrap-material-design.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="https://fezvrasta.github.io/bootstrap-material-design/assets/js/ie10-viewport-bug-workaround.js"></script>
+	<!-- leaflet -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+    <script type="text/javascript">
+	
+		var mapboxTiles = L.tileLayer('https://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png', {
+			attribution: 'Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+		});
+
+
+		var map = L.map('map', 
+		{ zoomControl:false })
+        .addLayer(mapboxTiles)
+        .setView([45.464346, 9.188292], 15);
+		
+		var cafes= new L.featureGroup();
+		
+		$.getJSON(
+			"http://gistonic.it/experiment/mappabase/geojson/businesses.geojson",
+			function(data) {
+			
+				var geojson = L.geoJson(
+					data,{
+						pointToLayer: IconPost
+					}
+				);
+				cafes.addLayer(geojson)
+				cafes.addTo(map)
+				
+		});
+
+		/* map.fitBounds(allbusinesses.getBounds(), {
+            padding: [50, 50]
+        });*/
+		map.on("zoomstart", function(){
+		zoomLev = map.getZoom();
+		console.log (zoomLev)
+		});
+	
+        // THIS IS NEW
+        
+		function IconPost(feature,latlng) {
+
+			return L.marker(latlng,{
+			icon: L.icon({
+			  iconUrl:'http://cityplanner.it/supply/icon_web/ranks_emojione/emojione-master/svg/1f1ef-1f1f5.svg',
+			  iconSize: [40,40]
+			})
+			//, clickable:false
+		  }).on('click', onClick_IconPost);  
+		}
+		
+		function onClick_IconPost(e) {
+			console.log("Hai fatto click e di seguito trovi l'e")
+			console.log(e)
+			console.log("E questo è il nome")
+			console.log(e.target.feature.properties.Name)
+			//$("#messaggio").html(e.target.feature.properties.Name)
+			$("#messaggio").remove();
+			$("body").append('\
+				<div id="messaggio" class="boxcomparsa alert alert-light alert-dismissible fade show" role="alert">\
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">\
+					<span aria-hidden="true">&times;</span>\
+					</button>\
+						' + e.target.feature.properties.Name + '\
+				</div>\
+			')
+		}
+		
+		$( "#zoomin" ).on( "click", function() {
+		map.flyTo([45.466112, 9.187773], 15)
+		  console.log("click");
+		});	
+		
+		$( "#zoomplus" ).on( "click", function() {
+			map.zoomIn()
+		});	
+		
+		$( "#zoommin" ).on( "click", function() {
+			map.zoomOut()		 
+		});
+			</script>
+	
+</body>
+
+</html>
